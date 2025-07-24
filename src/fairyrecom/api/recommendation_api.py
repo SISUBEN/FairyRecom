@@ -42,7 +42,11 @@ except ImportError:
     logger.error("[red]请确保推荐引擎模块存在[/red]")
     sys.exit(1)
 
-app = Flask(__name__)
+import os
+# 返回上级目录
+
+print("當前目錄：", os.getcwd())
+app = Flask(__name__, template_folder='templates')
 CORS(app)  # 允许跨域请求
 
 # 全局推荐引擎实例
@@ -739,6 +743,46 @@ def use_external_database():
         
     except Exception as e:
         return jsonify(create_response(False, error=f"外部数据库加载失败: {str(e)}")), 500
+
+@app.route('/api/recom_form', methods=['POST'])
+def recom_form():
+    """
+    通过填写表单获取推荐数据
+    you fucking winned, i gonna fucking abandon this god damn render
+    keeping saying that template not found
+    its enoughed
+    fuck you flask
+    """
+    if request.method == 'POST':
+        try:
+            age = int(request.form.get('age'))
+            gender = int(request.form.get('gender'))
+            education = int(request.form.get('education'))
+            hobby = list(request.form.get('hobby'))
+            address = int(request.form.get('address'))
+            income = float(request.form.get('income'))
+            career = int(request.form.get('career'))
+            jsonData = {
+                "age": age,
+                "gender": gender,
+                "education": education,
+                "hobby": hobby,
+                "address": address,
+                "income": income,
+                "career": career
+            }
+            result = recommend_for_custom_user(
+                age, gender, education, hobby, address, income, career
+            )
+            return jsonify(create_response(True, result, "推荐成功"))
+        except Exception as e:
+            return jsonify(create_response(False, error=f"推荐表单生成失败: {str(e)}")), 500
+    else:
+        #打印當前運行的目錄
+        import os
+        print("當前目錄：", os.getcwd())
+        return render_template('index.html')
+        
 
 @app.route('/api/user/find_or_create', methods=['POST'])
 def find_or_create_user():

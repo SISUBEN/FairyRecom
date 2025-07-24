@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>智能表单系统</title>
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.min.css">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Microsoft YaHei", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: url("background.jpg") center center/cover no-repeat fixed,
+                    linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(45, 45, 45, 0.9) 100%);
+        background-blend-mode: overlay;
+        min-height: 100vh;
+        padding: 20px;
+        color: #ffffff;
+      }
+
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* 表单切换器样式 */
+      .form-switcher {
+        background: rgba(20, 20, 20, 0.85);
+        backdrop-filter: blur(15px);
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+
+      .switcher-tabs {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .tab-button {
+        background: rgba(40, 40, 40, 0.8);
+        color: #e0e0e0;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 12px 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        min-width: 120px;
+        text-align: center;
+      }
+
+      .tab-button:hover {
+        background: rgba(60, 60, 60, 0.9);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .tab-button.active {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        border-color: #4caf50;
+        color: #ffffff;
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+      }
+
+      .form-container {
+        background: rgba(20, 20, 20, 0.85);
+        backdrop-filter: blur(15px);
+        padding: 40px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: none;
+      }
+
+      .form-content {
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .form-content.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 300;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+        position: relative;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #e0e0e0;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      textarea,
+      select {
+        width: 100%;
+        padding: 15px 20px;
+        background: rgba(40, 40, 40, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        outline: none;
+        resize: vertical;
+      }
+
+      textarea {
+        min-height: 100px;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #4caf50;
+        background: rgba(50, 50, 50, 0.95);
+        box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        transform: translateY(-2px);
+      }
+
+      input:hover,
+      textarea:hover,
+      select:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+        background: rgba(50, 50, 50, 0.9);
+      }
+
+      /* 验证状态样式 */
+      .form-group.valid input,
+      .form-group.valid select,
+      .form-group.valid textarea {
+        border-color: #4caf50;
+        box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+      }
+
+      .form-group.invalid input,
+      .form-group.invalid select,
+      .form-group.invalid textarea {
+        border-color: #f44336;
+        box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+      }
+
+      .error-message {
+        color: #f44336;
+        font-size: 12px;
+        margin-top: 5px;
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .form-group.invalid .error-message {
+        display: block;
+      }
+
+      select {
+        cursor: pointer;
+      }
+
+      select option {
+        background: #2a2a2a;
+        color: #ffffff;
+        padding: 10px;
+      }
+
+      button {
+        width: 100%;
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        color: white;
+        padding: 18px 30px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        margin-top: 20px;
+      }
+
+      button:hover:not(:disabled) {
+        background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(76, 175, 80, 0.5);
+      }
+
+      button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+        background: linear-gradient(135deg, #666 0%, #555 100%);
+      }
+
+      /* 评分组件样式 */
+      .rating-group {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .rating-star {
+        font-size: 24px;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .rating-star:hover,
+      .rating-star.active {
+        color: #ffd700;
+        transform: scale(1.1);
+      }
+
+      /* 复选框样式 */
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 10px;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        background: rgba(40, 40, 40, 0.5);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox-item:hover {
+        background: rgba(60, 60, 60, 0.7);
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .form-container {
+          padding: 25px;
+        }
+
+        .switcher-tabs {
+          gap: 5px;
+        }
+
+        .tab-button {
+          padding: 10px 15px;
+          font-size: 12px;
+          min-width: 100px;
+        }
+
+        .checkbox-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* SweetAlert2 自定义样式 */
+      .swal2-popup {
+        background: rgba(20, 20, 20, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px !important;
+        backdrop-filter: blur(15px) !important;
+      }
+
+      .swal2-title {
+        color: #ffffff !important;
+        font-family: "Microsoft YaHei", sans-serif !important;
+      }
+
+      .swal2-content {
+        color: #e0e0e0 !important;
+        font-family: "Microsoft YaHei", sans-serif !important;
+      }
+
+      .swal2-confirm {
+        background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- 表单切换器 -->
+      <div class="form-switcher">
+        <div class="switcher-tabs">
+          <button class="tab-button active" data-form="recommendation">🎯 智能推荐</button>
+          <button class="tab-button" data-form="feedback">💬 用户反馈</button>
+          <button class="tab-button" data-form="analysis">📊 数据分析</button>
+          <button class="tab-button" data-form="settings">⚙️ 系统设置</button>
+        </div>
+      </div>
+
+      <div class="form-container">
+        <!-- 推荐表单 -->
+        <div class="form-content active" id="recommendation-form">
+          <h2>🎯 智能推荐表单</h2>
+          <form id="recomForm" novalidate>
+            <div class="form-group">
+              <label for="age">🎂 年龄</label>
+              <input type="number" id="age" name="age" placeholder="请输入您的年龄 (14-100)" min="14" max="100" required />
+              <div class="error-message" id="age-error">请输入有效的年龄 (14-100岁)</div>
+            </div>
+
+            <div class="form-group">
+              <label for="gender">⚧ 性别</label>
+              <select id="gender" name="gender" required>
+                <option value="" disabled selected>请选择性别</option>
+                <option value="0">👩 女</option>
+                <option value="1">👨 男</option>
+              </select>
+              <div class="error-message" id="gender-error">请选择您的性别</div>
+            </div>
+
+            <div class="form-group">
+              <label for="education">🎓 学历</label>
+              <select id="education" name="education" required>
+                <option value="" disabled selected>请选择学历</option>
+                <option value="0">🏫 高中</option>
+                <option value="1">🏛️ 大专</option>
+                <option value="2">🎓 本科</option>
+                <option value="3">📚 硕士</option>
+                <option value="4">🔬 博士</option>
+              </select>
+              <div class="error-message" id="education-error">请选择您的学历</div>
+            </div>
+
+            <div class="form-group">
+              <label for="career">💼 职业</label>
+              <select id="career" name="career" required>
+                <option value="" disabled selected>请选择职业</option>
+                <option value="0">📖 学生</option>
+                <option value="1">👩‍🏫 教师</option>
+                <option value="2">👨‍💻 工程师</option>
+                <option value="3">👩‍⚕️ 医生</option>
+                <option value="4">🔧 其他</option>
+              </select>
+              <div class="error-message" id="career-error">请选择您的职业</div>
+            </div>
+
+            <div class="form-group">
+              <label for="income">💰 月收入</label>
+              <input type="number" id="income" name="income" placeholder="请输入您的月收入 (元)" min="0" step="100" required />
+              <div class="error-message" id="income-error">请输入有效的月收入金额</div>
+            </div>
+
+            <div class="form-group">
+              <label for="address">📍 地址编号</label>
+              <input type="number" id="address" name="address" placeholder="请输入地址编号 (1-100)" min="1" max="100" required />
+              <div class="error-message" id="address-error">请输入有效的地址编号 (1-100)</div>
+            </div>
+
+            <div class="form-group">
+              <label for="hobby">🎨 爱好</label>
+              <input type="text" id="hobby" name="hobby" placeholder="请输入您的爱好，用逗号分隔 (如: 阅读,运动,音乐)" required />
+              <div class="error-message" id="hobby-error">请输入至少一个爱好，多个爱好用逗号分隔</div>
+            </div>
+
+            <button type="submit" id="recomSubmitBtn">🚀 获取智能推荐</button>
+          </form>
+        </div>
+
+        <!-- 用户反馈表单 -->
+        <div class="form-content" id="feedback-form">
+          <h2>💬 用户反馈表单</h2>
+          <form id="feedbackForm" novalidate>
+            <div class="form-group">
+              <label for="userName">👤 用户名</label>
+              <input type="text" id="userName" name="userName" placeholder="请输入您的用户名" required />
+              <div class="error-message" id="userName-error">请输入用户名</div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">📧 邮箱</label>
+              <input type="email" id="email" name="email" placeholder="请输入您的邮箱地址" required />
+              <div class="error-message" id="email-error">请输入有效的邮箱地址</div>
+            </div>
+
+            <div class="form-group">
+              <label for="rating">⭐ 整体评分</label>
+              <div class="rating-group">
+                <span class="rating-star" data-rating="1">⭐</span>
+                <span class="rating-star" data-rating="2">⭐</span>
+                <span class="rating-star" data-rating="3">⭐</span>
+                <span class="rating-star" data-rating="4">⭐</span>
+                <span class="rating-star" data-rating="5">⭐</span>
+                <span id="rating-text">请选择评分</span>
+              </div>
+              <input type="hidden" id="rating" name="rating" required />
+              <div class="error-message" id="rating-error">请选择评分</div>
+            </div>
+
+            <div class="form-group">
+              <label for="feedbackType">📝 反馈类型</label>
+              <select id="feedbackType" name="feedbackType" required>
+                <option value="" disabled selected>请选择反馈类型</option>
+                <option value="bug">🐛 Bug报告</option>
+                <option value="feature">💡 功能建议</option>
+                <option value="improvement">🔧 改进建议</option>
+                <option value="other">📋 其他</option>
+              </select>
+              <div class="error-message" id="feedbackType-error">请选择反馈类型</div>
+            </div>
+
+            <div class="form-group">
+              <label for="feedbackContent">💭 反馈内容</label>
+              <textarea id="feedbackContent" name="feedbackContent" placeholder="请详细描述您的反馈内容..." required></textarea>
+              <div class="error-message" id="feedbackContent-error">请输入反馈内容</div>
+            </div>
+
+            <button type="submit" id="feedbackSubmitBtn">📤 提交反馈</button>
+          </form>
+        </div>
+
+        <!-- 数据分析表单 -->
+        <div class="form-content" id="analysis-form">
+          <h2>📊 数据分析表单</h2>
+          <form id="analysisForm" novalidate>
+            <div class="form-group">
+              <label for="analysisType">📈 分析类型</label>
+              <select id="analysisType" name="analysisType" required>
+                <option value="" disabled selected>请选择分析类型</option>
+                <option value="user_behavior">👥 用户行为分析</option>
+                <option value="recommendation_performance">🎯 推荐性能分析</option>
+                <option value="content_popularity">🔥 内容热度分析</option>
+                <option value="system_metrics">⚡ 系统指标分析</option>
+              </select>
+              <div class="error-message" id="analysisType-error">请选择分析类型</div>
+            </div>
+
+            <div class="form-group">
+              <label for="dateRange">📅 时间范围</label>
+              <select id="dateRange" name="dateRange" required>
+                <option value="" disabled selected>请选择时间范围</option>
+                <option value="last_7_days">📅 最近7天</option>
+                <option value="last_30_days">📅 最近30天</option>
+                <option value="last_3_months">📅 最近3个月</option>
+                <option value="last_year">📅 最近一年</option>
+                <option value="custom">🗓️ 自定义</option>
+              </select>
+              <div class="error-message" id="dateRange-error">请选择时间范围</div>
+            </div>
+
+            <div class="form-group">
+              <label>📊 分析维度</label>
+              <div class="checkbox-group">
+                <div class="checkbox-item">
+                  <input type="checkbox" id="dimension_age" name="dimensions" value="age">
+                  <label for="dimension_age">🎂 年龄分布</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="dimension_gender" name="dimensions" value="gender">
+                  <label for="dimension_gender">⚧ 性别分布</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="dimension_location" name="dimensions" value="location">
+                  <label for="dimension_location">📍 地域分布</label>
+                </div>
+                <div class="checkbox-item">
+                  <input type="checkbox" id="dimension_interest" name="dimensions" value="interest">
+                  <label for="dimension_interest">🎨 兴趣偏好</label>
+                </div>
+              </div>
+              <div class="error-message" id="dimensions-error">请至少选择一个分析维度</div>
+            </div>
+
+            <div class="form-group">
+              <label for="exportFormat">💾 导出格式</label>
+              <select id="exportFormat" name="exportFormat" required>
+                <option value="" disabled selected>请选择导出格式</option>
+                <option value="json">📄 JSON</option>
+                <option value="csv">📊 CSV</option>
+                <option value="excel">📈 Excel</option>
+                <option value="pdf">📋 PDF报告</option>
+              </select>
+              <div class="error-message" id="exportFormat-error">请选择导出格式</div>
+            </div>
+
+            <button type="submit" id="analysisSubmitBtn">🔍 开始分析</button>
+          </form>
+        </div>
+
+        <!-- 系统设置表单 -->
+        <div class="form-content" id="settings-form">
+          <h2>⚙️ 系统设置表单</h2>
+          <form id="settingsForm" novalidate>
+            <div class="form-group">
+              <label for="algorithm">🧠 推荐算法</label>
+              <select id="algorithm" name="algorithm" required>
+                <option value="" disabled selected>请选择推荐算法</option>
+                <option value="collaborative_filtering">👥 协同过滤</option>
+                <option value="content_based">📝 基于内容</option>
+                <option value="hybrid">🔀 混合算法</option>
+                <option value="popularity">🔥 热门推荐</option>
+                <option value="diversified">🎲 多样化推荐</option>
+                <option value="cold_start">🆕 冷启动推荐</option>
+              </select>
+              <div class="error-message" id="algorithm-error">请选择推荐算法</div>
+            </div>
+
+            <button type="submit" id="settingsSubmitBtn">💾 保存设置</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SweetAlert2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.1/dist/sweetalert2.all.min.js"></script>
+    
+    <script>
+      // 表单切换功能
+      class FormSwitcher {
+        constructor() {
+          this.currentForm = 'recommendation';
+          this.init();
+        }
+
+        init() {
+          this.setupTabSwitching();
+          this.setupValidation();
+          this.setupFormSubmissions();
+          this.setupRatingSystem();
+        }
+
+        setupTabSwitching() {
+          const tabButtons = document.querySelectorAll('.tab-button');
+          const formContents = document.querySelectorAll('.form-content');
+
+          tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+              const formType = button.dataset.form;
+              
+              // 更新按钮状态
+              tabButtons.forEach(btn => btn.classList.remove('active'));
+              button.classList.add('active');
+              
+              // 切换表单内容
+              formContents.forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${formType}-form`) {
+                  content.classList.add('active');
+                }
+              });
+              
+              this.currentForm = formType;
+              
+              // 显示切换提示
+              this.showSwitchNotification(formType);
+            });
+          });
+        }
+
+        showSwitchNotification(formType) {
+          const formNames = {
+            recommendation: '🎯 智能推荐',
+            feedback: '💬 用户反馈',
+            analysis: '📊 数据分析',
+            settings: '⚙️ 系统设置'
+          };
+          
+          const toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          
+          toast.fire({
+            icon: 'info',
+            title: `已切换到 ${formNames[formType]} 表单`
+          });
+        }
+
+        setupRatingSystem() {
+          const ratingStars = document.querySelectorAll('.rating-star');
+          const ratingInput = document.getElementById('rating');
+          const ratingText = document.getElementById('rating-text');
+          
+          ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+              const rating = parseInt(star.dataset.rating);
+              ratingInput.value = rating;
+              
+              // 更新星星显示
+              ratingStars.forEach((s, index) => {
+                if (index < rating) {
+                  s.classList.add('active');
+                } else {
+                  s.classList.remove('active');
+                }
+              });
+              
+              // 更新文本
+              const ratingTexts = ['', '很差', '较差', '一般', '良好', '优秀'];
+              ratingText.textContent = ratingTexts[rating];
+              
+              // 清除错误状态
+              const formGroup = ratingInput.closest('.form-group');
+              formGroup.classList.remove('invalid');
+              formGroup.classList.add('valid');
+            });
+          });
+        }
+
+        setupValidation() {
+          // 验证规则
+          this.validationRules = {
+            // 推荐表单验证规则
+            age: {
+              validate: (value) => {
+                const age = parseInt(value);
+                return age >= 14 && age <= 100;
+              },
+              message: '请输入有效的年龄 (14-100岁)'
+            },
+            gender: {
+              validate: (value) => value !== '',
+              message: '请选择您的性别'
+            },
+            education: {
+              validate: (value) => value !== '',
+              message: '请选择您的学历'
+            },
+            career: {
+              validate: (value) => value !== '',
+              message: '请选择您的职业'
+            },
+            income: {
+              validate: (value) => {
+                const income = parseFloat(value);
+                return income >= 0 && income <= 1000000; // 支持0到100万的收入范围
+              },
+              message: '请输入有效的月收入金额 (0-1000000元)'
+            },
+            address: {
+              validate: (value) => {
+                const address = parseInt(value);
+                return address >= 1 && address <= 100;
+              },
+              message: '请输入有效的地址编号 (1-100)'
+            },
+            hobby: {
+              validate: (value) => {
+                const hobbies = value.trim().split(',').filter(h => h.trim().length > 0);
+                return hobbies.length >= 1 && hobbies.every(h => h.trim().length >= 2);
+              },
+              message: '请输入至少一个爱好，每个爱好至少2个字符，多个爱好用逗号分隔'
+            },
+            // 反馈表单验证规则
+            userName: {
+              validate: (value) => value.trim().length >= 2,
+              message: '用户名至少需要2个字符'
+            },
+            email: {
+              validate: (value) => /^[^\u0000-\s@]+@[^\u0000-\s@]+\.[^\u0000-\s@]+$/.test(value),
+              message: '请输入有效的邮箱地址'
+            },
+            rating: {
+              validate: (value) => value >= 1 && value <= 5,
+              message: '请选择评分'
+            },
+            feedbackType: {
+              validate: (value) => value !== '',
+              message: '请选择反馈类型'
+            },
+            feedbackContent: {
+              validate: (value) => value.trim().length >= 10,
+              message: '反馈内容至少需要10个字符'
+            },
+            // 分析表单验证规则
+            analysisType: {
+              validate: (value) => value !== '',
+              message: '请选择分析类型'
+            },
+            dateRange: {
+              validate: (value) => value !== '',
+              message: '请选择时间范围'
+            },
+            dimensions: {
+              validate: () => {
+                const checkboxes = document.querySelectorAll('input[name="dimensions"]:checked');
+                return checkboxes.length > 0;
+              },
+              message: '请至少选择一个分析维度'
+            },
+            exportFormat: {
+              validate: (value) => value !== '',
+              message: '请选择导出格式'
+            },
+            // 设置表单验证规则 - 简化版
+            algorithm: {
+              validate: (value) => value !== '',
+              message: '请选择推荐算法'
+            }
+          };
+
+          this.setupRealTimeValidation();
+        }
+
+        setupRealTimeValidation() {
+          Object.keys(this.validationRules).forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (!field) return;
+
+            field.addEventListener('input', () => {
+              this.validateField(fieldName);
+            });
+
+            field.addEventListener('blur', () => {
+              this.validateField(fieldName);
+            });
+          });
+        }
+
+        validateField(fieldName) {
+          const field = document.getElementById(fieldName);
+          const rule = this.validationRules[fieldName];
+          if (!field || !rule) return true;
+
+          let value;
+          if (fieldName === 'dimensions') {
+            // 特殊处理复选框组
+            value = null; // 在validate函数中处理
+          } else {
+            value = field.value;
+          }
+
+          const isValid = rule.validate(value);
+          const formGroup = field.closest('.form-group');
+
+          if (value === '' || value === null) {
+            formGroup.classList.remove('valid', 'invalid');
+            return true;
+          }
+
+          if (isValid) {
+            formGroup.classList.remove('invalid');
+            formGroup.classList.add('valid');
+          } else {
+            formGroup.classList.remove('valid');
+            formGroup.classList.add('invalid');
+          }
+
+          return isValid;
+        }
+
+        validateForm(formId) {
+          const form = document.getElementById(formId);
+          const formData = new FormData(form);
+          let isValid = true;
+          const errors = [];
+
+          // 获取当前表单的所有字段
+          const fields = form.querySelectorAll('input, select, textarea');
+          
+          fields.forEach(field => {
+            const fieldName = field.name || field.id;
+            const rule = this.validationRules[fieldName];
+            
+            if (!rule) return;
+
+            let value;
+            if (fieldName === 'dimensions') {
+              value = null; // 在validate函数中处理
+            } else {
+              value = field.value;
+            }
+
+            if (value === '' || value === null || !rule.validate(value)) {
+              const formGroup = field.closest('.form-group');
+              formGroup.classList.add('invalid');
+              formGroup.classList.remove('valid');
+              
+              const label = formGroup.querySelector('label').textContent;
+              errors.push(`${label}: ${rule.message}`);
+              isValid = false;
+            } else {
+              const formGroup = field.closest('.form-group');
+              formGroup.classList.add('valid');
+              formGroup.classList.remove('invalid');
+            }
+          });
+
+          return { isValid, errors };
+        }
+
+        setupFormSubmissions() {
+          // 推荐表单提交
+          document.getElementById('recomForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRecommendationSubmit();
+          });
+
+          // 反馈表单提交
+          document.getElementById('feedbackForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleFeedbackSubmit();
+          });
+
+          // 分析表单提交
+          document.getElementById('analysisForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleAnalysisSubmit();
+          });
+
+          // 设置表单提交
+          document.getElementById('settingsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleSettingsSubmit();
+          });
+        }
+
+        async handleRecommendationSubmit() {
+          const validation = this.validateForm('recomForm');
+          
+          if (!validation.isValid) {
+            this.showValidationErrors(validation.errors);
+            return;
+          }
+
+          this.showLoading('正在获取推荐...');
+
+          try {
+            const formData = new FormData(document.getElementById('recomForm'));
+            const jsonData = {};
+            formData.forEach((value, key) => {
+              jsonData[key] = value;
+            });
+
+
+
+            const response = await fetch('/api/recom_form', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(jsonData)
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            this.showSuccess('推荐获取成功！', data);
+          } catch (error) {
+            this.showError('获取推荐失败', error.message);
+          }
+        }
+
+        async handleFeedbackSubmit() {
+          const validation = this.validateForm('feedbackForm');
+          
+          if (!validation.isValid) {
+            this.showValidationErrors(validation.errors);
+            return;
+          }
+
+          this.showLoading('正在提交反馈...');
+
+          try {
+            const formData = new FormData(document.getElementById('feedbackForm'));
+            const feedbackData = {
+              userName: formData.get('userName'),
+              userEmail: formData.get('userEmail'),
+              rating: parseInt(formData.get('rating')),
+              feedbackType: formData.get('feedbackType'),
+              feedbackContent: formData.get('feedbackContent')
+            };
+
+            // 调用反馈API（需要在后端实现）
+            const response = await fetch('/api/feedback/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(feedbackData)
+            });
+
+            if (!response.ok) {
+              throw new Error(`反馈提交失败: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.showSuccess('反馈提交成功！', result.message || '感谢您的宝贵反馈，我们会认真处理。');
+            document.getElementById('feedbackForm').reset();
+            this.resetRatingSystem();
+            
+          } catch (error) {
+            console.error('反馈提交错误:', error);
+            this.showError('提交反馈失败', error.message);
+          }
+        }
+
+        async handleAnalysisSubmit() {
+          const validation = this.validateForm('analysisForm');
+          
+          if (!validation.isValid) {
+            this.showValidationErrors(validation.errors);
+            return;
+          }
+
+          this.showLoading('正在生成分析报告...');
+
+          try {
+            const formData = new FormData(document.getElementById('analysisForm'));
+            const analysisData = {
+              analysisType: formData.get('analysisType'),
+              dateRange: formData.get('dateRange'),
+              dimensions: formData.getAll('dimensions'),
+              exportFormat: formData.get('exportFormat')
+            };
+
+            // 调用统计分析API
+            const response = await fetch('/api/stats/analysis', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(analysisData)
+            });
+
+            if (!response.ok) {
+              throw new Error(`分析失败: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.showSuccess('分析完成！', result.data);
+            
+          } catch (error) {
+            console.error('分析错误:', error);
+            this.showError('分析失败', error.message);
+          }
+        }
+
+        async handleSettingsSubmit() {
+          const validation = this.validateForm('settingsForm');
+          
+          if (!validation.isValid) {
+            this.showValidationErrors(validation.errors);
+            return;
+          }
+
+          this.showLoading('正在保存算法设置...');
+
+          try {
+            const formData = new FormData(document.getElementById('settingsForm'));
+            const settingsData = {
+              algorithm: formData.get('algorithm')
+            };
+
+            // 调用设置保存API
+            const response = await fetch('/api/settings/algorithm', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(settingsData)
+            });
+
+            if (!response.ok) {
+              throw new Error(`设置保存失败: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.showSuccess('算法设置保存成功！', `已切换到 ${this.getAlgorithmName(settingsData.algorithm)} 算法`);
+            
+          } catch (error) {
+            console.error('设置保存错误:', error);
+            this.showError('保存设置失败', error.message);
+          }
+        }
+
+        getAlgorithmName(algorithm) {
+          const algorithmNames = {
+            'collaborative_filtering': '协同过滤',
+            'content_based': '基于内容',
+            'hybrid': '混合算法',
+            'popularity': '热门推荐',
+            'diversified': '多样化推荐',
+            'cold_start': '冷启动推荐'
+          };
+          return algorithmNames[algorithm] || algorithm;
+        }
+
+        resetRatingSystem() {
+          const ratingStars = document.querySelectorAll('.rating-star');
+          const ratingInput = document.getElementById('rating');
+          const ratingText = document.getElementById('rating-text');
+          
+          ratingStars.forEach(star => star.classList.remove('active'));
+          ratingInput.value = '';
+          ratingText.textContent = '请选择评分';
+        }
+
+        showLoading(message) {
+          Swal.fire({
+            title: message,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+        }
+
+        showSuccess(title, data) {
+          let html = '';
+          if (typeof data === 'object' && data.recommendations) {
+            // 特殊处理推荐结果
+            html = `
+              <div style="text-align: left; margin-top: 15px;">
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 8px;">
+                  <h4 style="color: #4caf50; margin-bottom: 10px;">👤 用户信息</h4>
+                  <p style="color: #e0e0e0;">用户ID: ${data.user_id}</p>
+                  <p style="color: #e0e0e0;">年龄: ${data.user_info.age}岁 | 性别: ${data.user_info.gender === 1 ? '男' : '女'}</p>
+                  <p style="color: #e0e0e0;">爱好: ${data.user_info.hobby.join(', ')}</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                  <h4 style="color: #4caf50; margin-bottom: 10px;">🎯 推荐结果 (${data.algorithm}算法)</h4>
+                  <div style="max-height: 300px; overflow-y: auto;">
+                    ${data.recommendations.map((item, index) => `
+                      <div style="padding: 8px; margin-bottom: 8px; background: rgba(40, 40, 40, 0.5); border-radius: 6px; border-left: 3px solid #4caf50;">
+                        <span style="color: #4caf50; font-weight: bold;">#${item.rank}</span>
+                        <span style="color: #e0e0e0; margin-left: 10px;">视频ID: ${item.video_id}</span>
+                        <span style="color: #ffd700; margin-left: 10px;">评分: ${item.score.toFixed(3)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                  <p style="color: #888; font-size: 12px;">共推荐 ${data.total_count} 个视频</p>
+                </div>
+              </div>
+            `;
+          } else if (typeof data === 'object') {
+            html = `
+              <div style="text-align: left; max-height: 400px; overflow-y: auto; padding: 15px; background: rgba(40, 40, 40, 0.5); border-radius: 8px; margin-top: 15px;">
+                <pre style="color: #e0e0e0; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
+              </div>
+            `;
+          } else {
+            html = `<p style="color: #e0e0e0; margin-top: 15px;">${data}</p>`;
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: title,
+            html: html,
+            confirmButtonText: '✨ 太棒了！',
+            width: '700px'
+          });
+        }
+
+        showError(title, message) {
+          Swal.fire({
+            icon: 'error',
+            title: title,
+            html: `
+              <div style="text-align: left; margin-top: 15px;">
+                <p style="color: #e0e0e0; margin-bottom: 10px;">错误详情：</p>
+                <p style="color: #f44336; font-family: monospace; background: rgba(40, 40, 40, 0.5); padding: 10px; border-radius: 5px;">${message}</p>
+              </div>
+            `,
+            confirmButtonText: '🔄 重试'
+          });
+        }
+
+        showValidationErrors(errors) {
+          Swal.fire({
+            icon: 'error',
+            title: '❌ 表单验证失败',
+            html: `
+              <div style="text-align: left; margin-top: 15px;">
+                <p style="margin-bottom: 10px; color: #e0e0e0;">请修正以下错误：</p>
+                <ul style="color: #f44336; padding-left: 20px;">
+                  ${errors.map(error => `<li style="margin-bottom: 5px;">${error}</li>`).join('')}
+                </ul>
+              </div>
+            `,
+            confirmButtonText: '🔧 去修正'
+          });
+        }
+      }
+
+      // 初始化表单切换器
+      document.addEventListener('DOMContentLoaded', () => {
+        new FormSwitcher();
+      });
+    </script>
+  </body>
+</html>
