@@ -1,0 +1,21 @@
+.venv
+reasoner
+.vscode
+__pycache__
+
+# Test
+*test*
+*demo*
+*improvements.md
+BigFive_Analysis_README.md
+
+# Log
+*.log
+logs/
+log/
+
+# Example
+example*
+
+# Report
+*report*
