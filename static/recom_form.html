@@ -883,7 +883,7 @@
 
 
 
-            const response = await fetch('/api/recom_form', {
+            const response = await fetch('http://127.0.0.1:5000/api/recom_form', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(jsonData)
@@ -921,7 +921,7 @@
             };
 
             // 调用反馈API（需要在后端实现）
-            const response = await fetch('/api/feedback/submit', {
+            const response = await fetch('http://127.0.0.1:5000/api/feedback/submit', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(feedbackData)
@@ -962,7 +962,7 @@
             };
 
             // 调用统计分析API
-            const response = await fetch('/api/stats/analysis', {
+            const response = await fetch('http://127.0.0.1:5000/api/stats/analysis', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(analysisData)
@@ -998,7 +998,7 @@
             };
 
             // 调用设置保存API
-            const response = await fetch('/api/settings/algorithm', {
+            const response = await fetch('http://127.0.0.1:5000/api/settings/algorithm', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(settingsData)

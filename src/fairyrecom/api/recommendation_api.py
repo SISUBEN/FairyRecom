@@ -201,60 +201,56 @@ def recommend_for_custom_user(
     - n: 推荐数量 (默认10)
     - weights: 混合推荐权重 (仅当algorithm=hybrid时有效)
     """
-    try:
-        # 先添加用戶
-        recommendation_engine.add_user(age, gender, education, hobby, address, income, career, user_id)
-        # 验证参数
-        if n <= 0 or n > 100:
-            return jsonify(create_response(False, error="推荐数量必须在1-100之间")), 400
-        
-        valid_algorithms = ['collaborative_filtering', 'content_based', 'popularity', 'hybrid', 'diversified', 'cold_start']
-        if algorithm not in valid_algorithms:
-            return jsonify(create_response(False, error=f"不支持的算法: {algorithm}")), 400
-
-        weights = None
-        
-        # 验证参数
-        if n <= 0 or n > 100:
-            return jsonify(create_response(False, error="推荐数量必须在1-100之间")), 400
-        
-        valid_algorithms = ['collaborative_filtering', 'content_based', 'popularity', 'hybrid', 'diversified', 'cold_start']
-        if algorithm not in valid_algorithms:
-            return jsonify(create_response(False, error=f"不支持的算法: {algorithm}")), 400
-        
-        # 生成推荐
-        if algorithm == 'collaborative_filtering':
-            recommendations = recommendation_engine.collaborative_filtering_recommend(user_id, n)
-        elif algorithm == 'content_based':
-            recommendations = recommendation_engine.content_based_recommend(user_id, n)
-        elif algorithm == 'popularity':
-            recommendations = recommendation_engine.popularity_based_recommend(user_id, n)
-        elif algorithm == 'diversified':
-            recommendations = recommendation_engine.diversified_recommend(user_id, n)
-        elif algorithm == 'cold_start':
-            recommendations = recommendation_engine.cold_start_recommend(user_id, n)
-        else:  # hybrid
-            recommendations = recommendation_engine.hybrid_recommend(user_id, n, weights)
-        
-        # 格式化结果
-        result = {
-            "user_id": user_id,
-            "algorithm": algorithm,
-            "recommendations": [
-                {
-                    "video_id": int(video_id),
-                    "score": float(score),
-                    "rank": i + 1
-                }
-                for i, (video_id, score) in enumerate(recommendations)
-            ],
-            "total_count": len(recommendations)
-        }
-        
-        return jsonify(create_response(True, result, f"成功为用户 {user_id} 生成 {len(recommendations)} 个推荐"))
-        
-    except Exception as e:
-        return jsonify(create_response(False, error=f"推荐生成失败: {str(e)}")), 500
+    # 先添加用戶
+    recommendation_engine.add_user(age, gender, education, hobby, address, income, career, user_id)
+    
+    # 验证参数
+    if n <= 0 or n > 100:
+        raise ValueError("推荐数量必须在1-100之间")
+    
+    valid_algorithms = ['collaborative_filtering', 'content_based', 'popularity', 'hybrid', 'diversified', 'cold_start']
+    if algorithm not in valid_algorithms:
+        raise ValueError(f"不支持的算法: {algorithm}")
+    
+    # 生成推荐
+    if algorithm == 'collaborative_filtering':
+        recommendations = recommendation_engine.collaborative_filtering_recommend(user_id, n)
+    elif algorithm == 'content_based':
+        recommendations = recommendation_engine.content_based_recommend(user_id, n)
+    elif algorithm == 'popularity':
+        recommendations = recommendation_engine.popularity_based_recommend(user_id, n)
+    elif algorithm == 'diversified':
+        recommendations = recommendation_engine.diversified_recommend(user_id, n)
+    elif algorithm == 'cold_start':
+        recommendations = recommendation_engine.cold_start_recommend(user_id, n)
+    else:  # hybrid
+        recommendations = recommendation_engine.hybrid_recommend(user_id, n, weights)
+    
+    # 格式化结果并返回数据（不是jsonify响应）
+    result = {
+        "user_id": user_id,
+        "algorithm": algorithm,
+        "user_info": {
+            "age": age,
+            "gender": gender,
+            "education": education,
+            "hobby": hobby,
+            "address": address,
+            "income": income,
+            "career": career
+        },
+        "recommendations": [
+            {
+                "video_id": int(video_id),
+                "score": float(score),
+                "rank": i + 1
+            }
+            for i, (video_id, score) in enumerate(recommendations)
+        ],
+        "total_count": len(recommendations)
+    }
+    
+    return result  # Return data directly, not jsonify response
 
 @app.route('/api/recommend/batch', methods=['POST'])
 def batch_recommend():
@@ -748,41 +744,32 @@ def use_external_database():
 def recom_form():
     """
     通过填写表单获取推荐数据
-    you fucking winned, i gonna fucking abandon this god damn render
-    keeping saying that template not found
-    its enoughed
-    fuck you flask
     """
-    if request.method == 'POST':
-        try:
-            age = int(request.form.get('age'))
-            gender = int(request.form.get('gender'))
-            education = int(request.form.get('education'))
-            hobby = list(request.form.get('hobby'))
-            address = int(request.form.get('address'))
-            income = float(request.form.get('income'))
-            career = int(request.form.get('career'))
-            jsonData = {
-                "age": age,
-                "gender": gender,
-                "education": education,
-                "hobby": hobby,
-                "address": address,
-                "income": income,
-                "career": career
-            }
+    try:
+        import json
+        req_data: dict = json.loads(request.data)
+        
+        if request.method == 'POST':
+            age = int(req_data.get('age'))
+            gender = int(req_data.get('gender'))
+            education = int(req_data.get('education'))
+            hobby = list(req_data.get('hobby'))
+            address = int(req_data.get('address'))
+            income = float(req_data.get('income'))
+            career = int(req_data.get('career'))
+            
             result = recommend_for_custom_user(
                 age, gender, education, hobby, address, income, career
             )
             return jsonify(create_response(True, result, "推荐成功"))
-        except Exception as e:
-            return jsonify(create_response(False, error=f"推荐表单生成失败: {str(e)}")), 500
-    else:
-        #打印當前運行的目錄
-        import os
-        print("當前目錄：", os.getcwd())
-        return render_template('index.html')
-        
+        else:
+            # 打印當前運行的目錄
+            import os
+            print("當前目錄：", os.getcwd())
+            return render_template('index.html')
+            
+    except Exception as e:
+        return jsonify(create_response(False, error=f"推荐表单生成失败: {str(e)}"))
 
 @app.route('/api/user/find_or_create', methods=['POST'])
 def find_or_create_user():
