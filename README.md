@@ -13,11 +13,6 @@ FairyRecom/
 │   │   └── affinity_simple.py        # 简化版分析器
 │   ├── api/                 # API接口
 │   │   └── recommendation_api.py     # Flask API服务
-│   ├── analysis/            # 数据分析工具
-│   │   ├── bigfive_analyzer.py       # 大五人格分析
-│   │   └── query_tool.py             # 查询工具
-│   └── utils/               # 工具函数
-├── tests/                   # 测试文件
 ├── docs/                    # 文档
 ├── static/                  # 静态资源
 │   ├── web_demo.html        # Web演示界面
@@ -25,7 +20,7 @@ FairyRecom/
 ├── data.db                  # 数据库文件
 ├── requirements.txt         # 依赖包
 ├── setup.py                 # 安装脚本
-├── run_api.py              # API启动脚本
+├── app.py              # API启动脚本
 └── run_web_demo.py         # Web演示启动脚本
 ```
 
@@ -80,30 +75,3 @@ Web演示界面将在 `http://localhost:8080/static/web_demo.html` 启动
 - **相似性分析**: 用户和视频相似度计算
 - **统计分析**: 全面的数据统计和分析
 - **Web界面**: 直观的演示和交互界面
-
-## 🔧 开发模式
-
-### 安装为开发包
-
-```bash
-pip install -e .
-```
-
-### 运行测试
-
-```bash
-python -m pytest tests/
-```
-
-### 运行演示程序
-
-```bash
-# 推荐算法演示
-python src/fairyrecom/demo/recommendation_algorithms_demo.py
-
-# 视频亲和度演示
-python src/fairyrecom/demo/video_affinity_demo.py
-
-# 大五人格分析演示
-python src/fairyrecom/demo/bigfive_analysis_demo.py
-```
