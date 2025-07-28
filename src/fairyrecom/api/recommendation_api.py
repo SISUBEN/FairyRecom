@@ -1,15 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-视频推荐系统API接口
-
-提供RESTful API接口，支持：
-1. 用户推荐
-2. 相似用户查找
-3. 相似视频查找
-4. 推荐解释
-5. 批量推荐
-6. 推荐统计
-"""
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import json

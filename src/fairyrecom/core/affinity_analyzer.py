@@ -1,12 +1,4 @@
-
 # -*- coding: utf-8 -*-
-"""
-视频喜爱度分析器
-
-这个模块用于分析用户对视频的喜爱度，并将结果存储到SQLite数据库中。
-分析基于用户的评分、点赞、评论等多维度数据。
-"""
-
 import pandas as pd
 import numpy as np
 import sqlite3

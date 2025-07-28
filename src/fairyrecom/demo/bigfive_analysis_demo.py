@@ -1,19 +1,4 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-BigFive性格相似度分析演示程序
-
-功能:
-1. 加载BigFive性格测试数据
-2. 计算用户间的性格相似度
-3. 找到最相似的用户
-4. 生成性格分析报告
-5. 可视化分析结果
-
-使用方法:
-python demo_bigfive_analysis.py
-"""
-
 import sys
 import os
 import logging

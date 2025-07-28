@@ -1,11 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-视频喜爱度分析器 - 简化版
-
-这个模块用于分析用户对视频的喜爱度，并将结果存储到SQLite数据库中。
-使用TextBlob库进行情感分析。
-"""
-
 import pandas as pd
 import numpy as np
 import sqlite3

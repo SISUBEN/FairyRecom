@@ -1,15 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-视频推荐算法引擎
-
-这个模块实现了多种视频推荐算法，包括：
-1. 协同过滤推荐 (Collaborative Filtering)
-2. 内容过滤推荐 (Content-based Filtering)
-3. 混合推荐算法 (Hybrid Recommendation)
-4. 热门推荐 (Popularity-based)
-5. 多样性推荐 (Diversity-aware)
-"""
-
 import sqlite3
 import pandas as pd
 import numpy as np

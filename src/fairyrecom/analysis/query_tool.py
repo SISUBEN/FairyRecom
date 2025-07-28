@@ -1,12 +1,5 @@
 
 # -*- coding: utf-8 -*-
-"""
-视频喜爱度数据查询工具
-
-这个工具用于查询和分析存储在data.db中的视频喜爱度数据。
-提供多种查询功能，帮助用户深入了解数据分析结果。
-"""
-
 import sqlite3
 import pandas as pd
 from typing import List, Dict, Optional
