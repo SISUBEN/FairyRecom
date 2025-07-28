@@ -74,3 +74,33 @@ Web演示界面将在 `http://localhost:8080/static/web_demo.html` 启动
 - **统计分析**: 全面的数据统计和分析
 - **Web界面**: 直观的演示和交互界面
 
+### FairyRecom 如何推荐视频？
+> FairyRecom 使用`reasoning dataset`训练视频推荐模型其包含协同过滤、内容推荐、混合推荐、流行度推荐、冷启动推荐等推荐模式
+
+*FairySearch依赖此FairyRecom进行视频推荐等操作*
+
+## 0x1 协同过滤
+
+当 FairySearch 通过POST方式请求`/api/recom_form`API时，FairyRecom通过下列一系列操作完成推荐
+
+1. 获取POST表单数据
+```python
+age = int(req_data.get('age'))
+gender = int(req_data.get('gender'))
+education = int(req_data.get('education'))
+hobby = list(req_data.get('hobby'))
+address = int(req_data.get('address'))
+income = float(req_data.get('income'))
+career = int(req_data.get('career'))
+```
+在前端的有效性检验：
+![Alt text](./images/image.png)
+| 栏位     | 方框类型   | 检验类型                       | 源码 |
+| -------- | ---------- | ------------------------------ | ---- |
+| 年龄     | 文字方块   | 完整性检查、范围检查和类型检查 | ![Alt text](./images/1.png)    |
+| 性别     | 下拉式选框 | 完整性檢查                     | ![Alt text](./images/2.png)    |
+| 學歷     | 下拉式选框 | 完整性檢查                     | ![Alt text](./images/3.png)    |
+| 大專     | 下拉式选框 | 完整性檢查                     | ![Alt text](./images/4.png)    |
+| 月收入   | 文字方块   | 完整性检查、范围检查和类型检查 | ![Alt text](./images/5.png)    |
+| 地址編號 | 文字方框   | 完整性检查、范围检查和类型检查 | ![Alt text](./images/6.png)    |
+| 愛好     | 文字方框   | 完整性检查、格式檢查           | ![Alt text](./images/7.png)    |
